@@ -1,0 +1,20 @@
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"  
+  xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+  <ui:style src="common.css" />
+  <g:HTMLPanel >
+  	<div class="{style.rightAlign}">
+    Genre: <g:ListBox  ui:field='listGenre' visibleItemCount='1'/> <br />
+    Status Martial: <g:ListBox ui:field='listStatutMartial' visibleItemCount='1'/><br />
+    LastName: <g:TextBox ui:field="lastName"  /> <br/>
+    FirstName: <g:TextBox ui:field="firstName" /> <br/>
+    Profession: <g:TextBox  ui:field="profession" /><br/>
+    
+    <g:Button ui:field="resetButton" title="Annuler" text="Annuler" />
+    <g:Button ui:field="submitButton" title="POST" text="POST"  />
+  </div>
+  </g:HTMLPanel>
+
+<g:Label ui:field="label" visible="false" ></g:Label>
+
+</ui:UiBinder>

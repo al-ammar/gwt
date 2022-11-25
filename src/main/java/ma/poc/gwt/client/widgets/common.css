@@ -1,0 +1,24 @@
+@def fieldWidth 30em;
+
+
+.editField {
+  display: inline;
+  width: fieldWidth;
+}
+
+
+.rightAlign {
+  text-align: right;
+}
+
+.table{
+	width: 100%;
+	table-layout: fixed;
+}
+
+.blocDiv {
+	width: 50%;
+	float: right;
+	margin-right: 25%;
+	display: block;
+}
