@@ -52,7 +52,7 @@ public class POCGWT implements EntryPoint {
 				.addHandler(new RequestFactoryLogHandler(provider, Level.FINEST, new ArrayList<String>()));
 
 		// Init Widget
-		UserWidget userWidget = new UserWidget(bus, factory);
+		UserWidget userWidget =  new UserWidget(factory, bus);
 		RootLayoutPanel.get().add(userWidget);
 	}
 }

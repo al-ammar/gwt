@@ -1,8 +1,5 @@
 package ma.poc.gwt.client.widgets;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -11,6 +8,7 @@ import java.util.logging.Logger;
 import com.google.gwt.cell.client.DateCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -19,18 +17,17 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 
+import ma.poc.gwt.client.events.UpsertUserEvent;
 import ma.poc.gwt.shared.PocRequestFactory;
 import ma.poc.gwt.shared.UserProxy;
 
@@ -64,8 +61,8 @@ public class UserWidget extends Composite {
 		}
 	}
 
-	private class StatutMartielColumn extends Column<UserProxy, String> {
-		public StatutMartielColumn() {
+	private class StatutMartialColumn extends Column<UserProxy, String> {
+		public StatutMartialColumn() {
 			super(new TextCell());
 		}
 
@@ -110,51 +107,52 @@ public class UserWidget extends Composite {
 	private final SingleSelectionModel<UserProxy> selectionModel = new SingleSelectionModel<UserProxy>();
 	Column<UserProxy, String> firstNameColumn = new FirstNameColumn();
 
-	public UserWidget(EventBus bus, PocRequestFactory factory) {
-		this.eventBus = bus;
+	public UserWidget(PocRequestFactory factory, EventBus eventBus) {
+		this.eventBus = eventBus;
 		this.factory = factory;
-		table = new DataGrid<UserProxy>(5);
+		table = new DataGrid<UserProxy>(10);
 		initWidget(GWT.<Binder>create(Binder.class).createAndBindUi(this));
-		firstNameColumn.setSortable(true);
+		CreationUser.init(eventBus, factory);
+		// firstNameColumn.setSortable(true);
 		table.addColumn(firstNameColumn, "Prénom");
 		table.addColumn(new LastNameColumn(), "Nom");
-		table.addColumn(new StatutMartielColumn(), "Situation Familiale");
+		table.addColumn(new StatutMartialColumn(), "Situation Familiale");
 		table.addColumn(new DateCreationColumn(), "Date de création");
-		table.setEmptyTableWidget(label.asWidget());
-//		table.setRowCount(5);
+//		table.setEmptyTableWidget(label.asWidget());
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 		table.setSelectionModel(selectionModel);
 		fetch(0);
 	}
 
 	private void fetch(final int page) {
-		factory.userRequest().getAllUsers(page, 10).fire(new Receiver<List<UserProxy>>() {
+		factory.userRequest().getAllUsers(page, 15).fire(new Receiver<List<UserProxy>>() {
 			@Override
 			public void onSuccess(List<UserProxy> response) {
+				pagination.setPageSize(10);
 				table.setRowData(page, response);
 				table.setPageStart(page);
-				table.setRowCount(10 + response.size(), false);
-				ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
-				dataProvider.addDataDisplay(table);
-				List<UserProxy> list = dataProvider.getList();
-				for (UserProxy t : response) {
-					list.add(t);
-				}
-				ListHandler<UserProxy> handerTri = new ListHandler<UserProxy>(list);
-				handerTri.setComparator(firstNameColumn, new Comparator<UserProxy>() {
-					@Override
-					public int compare(UserProxy o1, UserProxy o2) {
-						if (o1 == o2) {
-							return 0;
-						}
-						if (o1 != null) {
-							return (o2 != null) ? o1.getFirstName().compareTo(o2.getFirstName()) : 1;
-						}
-						return -1;
-					}
-				});
-				table.addColumnSortHandler(handerTri);
-				table.getColumnSortList().push(firstNameColumn);
+				table.setRowCount(100, false);
+//				ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
+//				dataProvider.addDataDisplay(table);
+//				List<UserProxy> list = dataProvider.getList();
+//				for (UserProxy t : response) {
+//					list.add(t);
+//				}
+//				ListHandler<UserProxy> handerTri = new ListHandler<UserProxy>(list);
+//				handerTri.setComparator(firstNameColumn, new Comparator<UserProxy>() {
+//					@Override
+//					public int compare(UserProxy o1, UserProxy o2) {
+//						if (o1 == o2) {
+//							return 0;
+//						}
+//						if (o1 != null) {
+//							return (o2 != null) ? o1.getFirstName().compareTo(o2.getFirstName()) : 1;
+//						}
+//						return -1;
+//					}
+//				});
+//				table.addColumnSortHandler(handerTri);
+//				table.getColumnSortList().push(firstNameColumn);
 			}
 		});
 	}
@@ -166,6 +164,14 @@ public class UserWidget extends Composite {
 		Range range = e.getNewRange();
 		int start = range.getStart();
 		fetch(start);
+	}
+
+	@UiHandler(value = "createUser")
+	void initCreate(ClickEvent event) {
+//		UserProxy user = factory.userRequest().create(UserProxy.class);
+//		context.persist().using(user);
+//		UpsertUser upsertUser = new UpsertUser(factory, user);
+		eventBus.fireEvent(new UpsertUserEvent(factory, null));
 	}
 
 }

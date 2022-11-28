@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -20,12 +19,12 @@ import ma.poc.gwt.domain.User;
 
 public class UserService extends Locator<User, String> {
 
-	private static final Logger log = Logger.getLogger(UserService.class.getName());
-
 	Map<String, List<User>> input = new HashMap<String, List<User>>();
 
 	@Override
 	public User create(Class<? extends User> clazz) {
+		User user = new User();
+		user.setId(UUID.randomUUID().toString());
 		return new User();
 	}
 
@@ -36,22 +35,22 @@ public class UserService extends Locator<User, String> {
 
 	@Override
 	public Class<User> getDomainType() {
-		return null;
+		return User.class;
 	}
 
 	@Override
 	public String getId(User domainObject) {
-		return null;
+		return domainObject.getId();
 	}
 
 	@Override
 	public Class<String> getIdType() {
-		return null;
+		return String.class;
 	}
 
 	@Override
 	public Object getVersion(User domainObject) {
-		return null;
+		return domainObject.getVersion();
 	}
 
 	public void persist() {
