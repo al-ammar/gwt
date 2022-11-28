@@ -2,6 +2,7 @@ package ma.poc.gwt.client.events;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.web.bindery.requestfactory.shared.RequestContext;
 
 import ma.poc.gwt.shared.PocRequestFactory;
 import ma.poc.gwt.shared.UserProxy;
@@ -9,20 +10,20 @@ import ma.poc.gwt.shared.UserProxy;
 public class UpsertUserEvent extends GwtEvent<UpsertUserEvent.Handler> {
 	public static final Type<Handler> TYPE = new Type<Handler>();
 
-	private final PocRequestFactory request;
+	private final RequestContext request;
 	private final UserProxy user;
 
 	public UpsertUserEvent(UserProxy user) {
 		this(null, user);
 	}
 
-	public UpsertUserEvent(PocRequestFactory request, UserProxy user) {
+	public UpsertUserEvent(RequestContext request, UserProxy user) {
 		this.user = user;
 		this.request = request;
 	}
 
 	public interface Handler extends EventHandler {
-		void edit(PocRequestFactory requestFactory, UserProxy proxy);
+		void edit(RequestContext requestContext, UserProxy proxy);
 	}
 
 	@Override

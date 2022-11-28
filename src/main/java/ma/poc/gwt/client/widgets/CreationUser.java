@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.i18n.server.testing.Gender;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -14,10 +15,14 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.requestfactory.shared.Receiver;
+import com.google.web.bindery.requestfactory.shared.RequestContext;
+import com.google.web.bindery.requestfactory.shared.ServerFailure;
 
 import ma.poc.gwt.client.events.UpsertUserEvent;
 import ma.poc.gwt.shared.PocRequestFactory;
 import ma.poc.gwt.shared.UserProxy;
+import ma.poc.gwt.shared.UserRequest;
 
 public class CreationUser {
 
@@ -54,14 +59,16 @@ public class CreationUser {
 
 	private final PocRequestFactory requestFactory;
 
-	private final UserProxy userProxy;
+	private final UserRequest context;
+
+	private UserProxy userProxy;
 
 	static void init(EventBus eventBus, PocRequestFactory requestFactory) {
 		eventBus.addHandler(UpsertUserEvent.TYPE, new UpsertUserEvent.Handler() {
 			@Override
-			public void edit(PocRequestFactory requestFactory, UserProxy proxy) {
+			public void edit(RequestContext requestContext, UserProxy proxy) {
 				log.log(Level.INFO, "!!!  Event consumed");
-				new CreationUser(requestFactory, proxy).edit();
+				new CreationUser((PocRequestFactory) requestContext.getRequestFactory(), proxy).edit();
 			}
 
 		});
@@ -69,6 +76,7 @@ public class CreationUser {
 
 	public CreationUser(final PocRequestFactory requestFactory, final UserProxy user) {
 		this.requestFactory = requestFactory;
+		this.context = requestFactory.userRequest();
 		this.userProxy = user;
 //		initWidget(uiBinder.createAndBindUi(this));
 		uiBinder.createAndBindUi(this);
@@ -92,17 +100,40 @@ public class CreationUser {
 
 	@UiHandler(value = "submitButton")
 	void handleCreation(ClickEvent e) {
-		UserProxy user = requestFactory.userRequest().create(UserProxy.class);
-		user.setFirstName(firstName.getValue());
-		user.setLastName(lastName.getValue());
-		user.setGenre(listGenre.getValue(listGenre.getSelectedIndex()));
-		user.setStatutMartial(listStatutMartial.getValue(listStatutMartial.getSelectedIndex()));
-		requestFactory.userRequest().persist().using(user).fire();
+		if (this.userProxy == null) {
+			this.userProxy = context.create(UserProxy.class);
+		}
+		this.userProxy.setFirstName(firstName.getValue());
+		this.userProxy.setLastName(lastName.getValue());
+		this.userProxy.setGenre(listGenre.getValue(listGenre.getSelectedIndex()));
+		this.userProxy.setStatutMartial(listStatutMartial.getValue(listStatutMartial.getSelectedIndex()));
+		log.log(Level.INFO, "Appel Persist" + this.userProxy.getFirstName());
+		context.upsert(this.userProxy).fire(new Receiver<String>() {
+			@Override
+			public void onSuccess(String response) {
+				log.log(Level.INFO, "Persisted" + response);
+				dialogBox.hide();
+			}
+
+			@Override
+			public void onFailure(ServerFailure error) {
+				log.log(Level.SEVERE, error.getStackTraceString());
+				log.log(Level.INFO, error.getMessage());
+				// TODO launch event to display error
+			}
+		});
 	}
 
 	void edit() {
 		log.log(Level.INFO, "edit edit");
+		if (this.userProxy != null) {
+			firstName.setValue(this.userProxy.getFirstName());
+			lastName.setValue(this.userProxy.getLastName());
+			profession.setValue(this.userProxy.getProfession());
+			// TODO matting index with value from DTO
+			listGenre.setSelectedIndex(1);
+			listStatutMartial.setSelectedIndex(1);
+		}
 		dialogBox.center();
 	}
-
 }

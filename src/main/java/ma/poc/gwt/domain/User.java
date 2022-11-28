@@ -2,20 +2,14 @@ package ma.poc.gwt.domain;
 
 import java.util.Date;
 
-import javax.validation.constraints.Size;
-
 public class User {
 
-	@Size(max = 20)
 	private String id;
 
-	@Size(max = 35)
 	private String lastName;
 
-	@Size(max = 35)
 	private String firstName;
 
-	@Size(max = 35)
 	private String profession;
 
 	private String genre;

@@ -16,18 +16,30 @@ public interface UserProxy extends EntityProxy {
 	String getFirstName();
 
 	void setLastName(String s);
-	
+
 	void setFirstName(String s);
-	
+
 	void setGenre(String gendre);
-	
+
 	void setStatutMartial(String statutMartial);
-	
+
 	String getGenre();
-	
+
 	String getStatutMartial();
-	
+
 	void setDateCreation(Date date);
-	
+
 	Date getDateCreation();
+
+	Integer getVersion();
+
+	void setVersion(Integer version);
+
+	void setId(String id);
+
+	String getId();
+
+	String getProfession();
+
+	void setProfession(String profession);
 }

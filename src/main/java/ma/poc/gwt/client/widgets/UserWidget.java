@@ -24,17 +24,19 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.requestfactory.shared.Receiver;
+import com.google.web.bindery.requestfactory.shared.RequestContext;
 
 import ma.poc.gwt.client.events.UpsertUserEvent;
 import ma.poc.gwt.shared.PocRequestFactory;
 import ma.poc.gwt.shared.UserProxy;
+import ma.poc.gwt.shared.UserRequest;
 
 public class UserWidget extends Composite {
 	private static final Logger log = Logger.getLogger(UserWidget.class.getName());
-
-	private int indexPage;
 
 	interface Binder extends UiBinder<Widget, UserWidget> {
 	}
@@ -101,58 +103,50 @@ public class UserWidget extends Composite {
 	@UiField
 	Label label = new Label("Aucun résultat");
 
-	private final PocRequestFactory factory;
-	private final EventBus eventBus;
-
-	private final SingleSelectionModel<UserProxy> selectionModel = new SingleSelectionModel<UserProxy>();
 	Column<UserProxy, String> firstNameColumn = new FirstNameColumn();
+
+	SingleSelectionModel<UserProxy> selectionModel = new SingleSelectionModel<UserProxy>();
+
+	private final PocRequestFactory factory;
+	private final RequestContext requestContext;
+	private final EventBus eventBus;
 
 	public UserWidget(PocRequestFactory factory, EventBus eventBus) {
 		this.eventBus = eventBus;
 		this.factory = factory;
+		this.requestContext = factory.userRequest();
 		table = new DataGrid<UserProxy>(10);
 		initWidget(GWT.<Binder>create(Binder.class).createAndBindUi(this));
 		CreationUser.init(eventBus, factory);
-		// firstNameColumn.setSortable(true);
 		table.addColumn(firstNameColumn, "Prénom");
 		table.addColumn(new LastNameColumn(), "Nom");
 		table.addColumn(new StatutMartialColumn(), "Situation Familiale");
 		table.addColumn(new DateCreationColumn(), "Date de création");
-//		table.setEmptyTableWidget(label.asWidget());
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 		table.setSelectionModel(selectionModel);
 		fetch(0);
+		selectionModel.addSelectionChangeHandler(new Handler() {
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				UserProxy user = selectionModel.getSelectedObject();
+				if (user == null) {
+					return;
+				}
+				log.log(Level.INFO, "user selectione" + user.getId());
+				selectionModel.setSelected(user, false);
+				UserWidget.this.eventBus.fireEvent(new UpsertUserEvent(requestContext, user));
+			}
+		});
 	}
 
 	private void fetch(final int page) {
-		factory.userRequest().getAllUsers(page, 15).fire(new Receiver<List<UserProxy>>() {
+		((UserRequest) requestContext).getAllUsers(page, 15).fire(new Receiver<List<UserProxy>>() {
 			@Override
 			public void onSuccess(List<UserProxy> response) {
 				pagination.setPageSize(10);
 				table.setRowData(page, response);
 				table.setPageStart(page);
 				table.setRowCount(100, false);
-//				ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
-//				dataProvider.addDataDisplay(table);
-//				List<UserProxy> list = dataProvider.getList();
-//				for (UserProxy t : response) {
-//					list.add(t);
-//				}
-//				ListHandler<UserProxy> handerTri = new ListHandler<UserProxy>(list);
-//				handerTri.setComparator(firstNameColumn, new Comparator<UserProxy>() {
-//					@Override
-//					public int compare(UserProxy o1, UserProxy o2) {
-//						if (o1 == o2) {
-//							return 0;
-//						}
-//						if (o1 != null) {
-//							return (o2 != null) ? o1.getFirstName().compareTo(o2.getFirstName()) : 1;
-//						}
-//						return -1;
-//					}
-//				});
-//				table.addColumnSortHandler(handerTri);
-//				table.getColumnSortList().push(firstNameColumn);
 			}
 		});
 	}
@@ -168,10 +162,6 @@ public class UserWidget extends Composite {
 
 	@UiHandler(value = "createUser")
 	void initCreate(ClickEvent event) {
-//		UserProxy user = factory.userRequest().create(UserProxy.class);
-//		context.persist().using(user);
-//		UpsertUser upsertUser = new UpsertUser(factory, user);
-		eventBus.fireEvent(new UpsertUserEvent(factory, null));
+		eventBus.fireEvent(new UpsertUserEvent(requestContext, null));
 	}
-
 }

@@ -2,7 +2,6 @@ package ma.poc.gwt.shared;
 
 import java.util.List;
 
-import com.google.web.bindery.requestfactory.shared.InstanceRequest;
 import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
@@ -17,7 +16,7 @@ public interface UserRequest extends RequestContext {
 
 	Request<UserProxy> getUserById(String id);
 
-	InstanceRequest<UserProxy, Void> persist();
-	
+	Request<String> upsert(UserProxy userProxy);
+
 	Request<List<UserProxy>> getAllUsers(int page, int max);
 }

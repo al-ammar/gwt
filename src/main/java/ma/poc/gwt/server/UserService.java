@@ -25,7 +25,7 @@ public class UserService extends Locator<User, String> {
 	public User create(Class<? extends User> clazz) {
 		User user = new User();
 		user.setId(UUID.randomUUID().toString());
-		return new User();
+		return user;
 	}
 
 	@Override
@@ -51,40 +51,6 @@ public class UserService extends Locator<User, String> {
 	@Override
 	public Object getVersion(User domainObject) {
 		return domainObject.getVersion();
-	}
-
-	public void persist() {
-//		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, "http://localhost:8086/rest/users");
-//		builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-//		System.out.println(this);
-//		try {
-//			Request request = builder.sendRequest(this.toString(), new RequestCallback() {
-//				public void onError(Request request, Throwable exception) {
-//					GWT.log("Erreur lors du WS", exception);
-//				}
-//
-//				public void onResponseReceived(Request request, Response response) {
-//					if (200 == response.getStatusCode()) {
-////		            updateTable(JsonUtils.safeEval(response.getText()));
-//					} else {
-//					}
-//				}
-//			});
-//
-//		} catch (RequestException e) {
-//			GWT.log("Erreur lors du WS", e);
-//		}
-//		return null
-		System.out.println("INIT PERSIST");
-		GWT.log("INIT");
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,
-				"http://localhost:8086/rest/users/9c7e4957-51e0-4fa9-aae3-c1c9f412ad33");
-		try {
-			builder.send();
-		} catch (RequestException e) {
-			GWT.log("Erreur lors persist", e);
-		}
-		GWT.log("DONE");
 	}
 
 	public User getUserById(String id) {
@@ -113,31 +79,11 @@ public class UserService extends Locator<User, String> {
 		return new User();
 	}
 
-//	public void persist(User user) {
-//		System.out.println("INIT persist");
-//		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, "http://localhost:8086/rest/users/");
-//		builder.setHeader("Accept", "application/json");
-//		builder.setHeader("Content-type", "application/json");
-//		builder.setCallback(new RequestCallback() {
-//			@Override
-//			public void onResponseReceived(Request request, Response response) {
-//				System.out.println(response.getText());
-//				System.out.println(response.getHeadersAsString());
-//			}
-//
-//			@Override
-//			public void onError(Request request, Throwable exception) {
-//				System.out.println(exception);
-//			}
-//		});
-//		try {
-//			Request out = builder.send();
-//			System.out.println("En attente " + out.isPending());
-//		} catch (RequestException e) {
-//			log.log(Level.INFO, "Erreur lors persist");
-//		}
-//		System.out.println("DONE persist");
-//	}
+	public String upsert(User user) {
+		System.out.println("INIT persist");
+		System.out.println("DONE persist");
+		return user.getId();
+	}
 
 	public Long countUsers() {
 		return null;
@@ -164,5 +110,4 @@ public class UserService extends Locator<User, String> {
 	public List<User> getAllUsers(int page, int max) {
 		return fromMap(page, max);
 	}
-
 }
