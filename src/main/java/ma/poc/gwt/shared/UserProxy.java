@@ -2,14 +2,14 @@ package ma.poc.gwt.shared;
 
 import java.util.Date;
 
-import com.google.web.bindery.requestfactory.shared.EntityProxy;
 import com.google.web.bindery.requestfactory.shared.ProxyFor;
+import com.google.web.bindery.requestfactory.shared.ValueProxy;
 
 import ma.poc.gwt.domain.User;
 import ma.poc.gwt.server.UserService;
 
 @ProxyFor(value = User.class, locator = UserService.class)
-public interface UserProxy extends EntityProxy {
+public interface UserProxy extends ValueProxy {
 
 	String getLastName();
 

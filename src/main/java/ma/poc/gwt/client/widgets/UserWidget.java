@@ -140,7 +140,7 @@ public class UserWidget extends Composite {
 	}
 
 	private void fetch(final int page) {
-		((UserRequest) requestContext).getAllUsers(page, 15).fire(new Receiver<List<UserProxy>>() {
+		factory.userRequest().getAllUsers(page, 15).fire(new Receiver<List<UserProxy>>() {
 			@Override
 			public void onSuccess(List<UserProxy> response) {
 				pagination.setPageSize(10);

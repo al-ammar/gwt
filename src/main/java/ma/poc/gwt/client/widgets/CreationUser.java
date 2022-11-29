@@ -102,6 +102,8 @@ public class CreationUser {
 	void handleCreation(ClickEvent e) {
 		if (this.userProxy == null) {
 			this.userProxy = context.create(UserProxy.class);
+		} else {
+			this.userProxy = context.edit(this.userProxy);
 		}
 		this.userProxy.setFirstName(firstName.getValue());
 		this.userProxy.setLastName(lastName.getValue());
@@ -130,7 +132,7 @@ public class CreationUser {
 			firstName.setValue(this.userProxy.getFirstName());
 			lastName.setValue(this.userProxy.getLastName());
 			profession.setValue(this.userProxy.getProfession());
-			// TODO matting index with value from DTO
+			// TODO matching index with value from DTO
 			listGenre.setSelectedIndex(1);
 			listStatutMartial.setSelectedIndex(1);
 		}
